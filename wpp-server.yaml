@@ -1,0 +1,37 @@
+#cloud-config
+groups:
+  - ubuntu: [root,sys]
+  - wppconnect
+
+# Add users to the system. Users are added after groups are added.
+users:
+  - default
+  - name: wppconnect
+    gecos: wppconnect
+    shell: /bin/bash
+    primary_group: wppconnect
+    sudo: ALL=(ALL) NOPASSWD:ALL
+    groups: users, admin
+    lock_passwd: false
+    ssh_authorized_keys:
+      - ssh-rsa <pulbic_key>
+
+runcmd:
+  - cd /home/wppconnect
+  - sudo apt-get update && sudo apt-get install -y libxshmfence-dev libgbm-dev wget unzip fontconfig locales gconf-service libasound2 libatk1.0-0 libc6 libcairo2 libcups2 libdbus-1-3 libexpat1 libfontconfig1 libgcc1 libgconf-2-4 libgdk-pixbuf2.0-0 libglib2.0-0 libgtk-3-0 libnspr4 libpango-1.0-0 libpangocairo-1.0-0 libstdc++6 libx11-6 libx11-xcb1 libxcb1 libxcomposite1 libxcursor1 libxdamage1 libxext6 libxfixes3 libxi6 libxrandr2 libxrender1 libxss1 libxtst6 ca-certificates fonts-liberation libappindicator1 libnss3 lsb-release xdg-utils
+  - wget -c https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
+  - sudo apt-get install libappindicator1
+  - sudo dpkg -i google-chrome-stable_current_amd64.deb
+  - sudo rm -rf google-chrome-stable_current_amd64.deb
+  - sudo apt install -y git
+  - sudo git clone https://github.com/wppconnect-team/wppconnect-server.git
+  - sudo chown wppconnect:wppconnect wppconnect-server/ -R
+  - cd wppconnect-server/
+  - sudo apt install -y npm
+  - npm cache clean -f
+  - sudo npm install -g n
+  - sudo n stable
+  - sudo -H -u wppconnect npm install
+  - sudo -H -u wppconnect npm run build
+  - sudo npm install pm2@latest -g
+  - sudo -H -u wppconnect pm2 start npm --name "WppConnect" -- start && pm2 startup && pm2 save
