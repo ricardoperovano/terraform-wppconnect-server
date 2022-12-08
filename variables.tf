@@ -1,5 +1,3 @@
-variable "hcloud_token" {}
-
 variable "location" {
   default = "nbg1"
 }
@@ -9,7 +7,7 @@ variable "instances" {
 }
 
 variable "server_type" {
-  default = "cx11"
+  default = "cx51"
 }
 
 variable "os_type" {
